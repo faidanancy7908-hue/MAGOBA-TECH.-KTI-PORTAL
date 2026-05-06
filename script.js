@@ -10,6 +10,11 @@ const themeToggle = document.getElementById("themeToggle");
 const brainRefreshBtn = document.getElementById("brainRefreshBtn");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
+const twoFactorBox = document.getElementById("twoFactorBox");
+const twoFactorCode = document.getElementById("twoFactorCode");
+const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+const resendCodeBtn = document.getElementById("resendCodeBtn");
+const twoFactorTimer = document.getElementById("twoFactorTimer");
 const statusText = document.getElementById("statusText");
 const brainStatus = document.getElementById("brainStatus");
 const year = document.getElementById("year");
@@ -25,15 +30,41 @@ const textAreaByRole = {
   lecturers: document.getElementById("lecturersData"),
   alumni: document.getElementById("alumniData")
 };
+const photoPreviewByRole = {
+  students: document.getElementById("studentsPhotoPreview"),
+  finance: document.getElementById("financePhotoPreview"),
+  administration: document.getElementById("administrationPhotoPreview"),
+  lecturers: document.getElementById("lecturersPhotoPreview"),
+  alumni: document.getElementById("alumniPhotoPreview")
+};
+const photoInputByRole = {
+  students: document.getElementById("studentsPhotoInput"),
+  finance: document.getElementById("financePhotoInput"),
+  administration: document.getElementById("administrationPhotoInput"),
+  lecturers: document.getElementById("lecturersPhotoInput"),
+  alumni: document.getElementById("alumniPhotoInput")
+};
+const photoClearByRole = {
+  students: document.getElementById("studentsPhotoClear"),
+  finance: document.getElementById("financePhotoClear"),
+  administration: document.getElementById("administrationPhotoClear"),
+  lecturers: document.getElementById("lecturersPhotoClear"),
+  alumni: document.getElementById("alumniPhotoClear")
+};
 let activeRole = null;
 let supabaseClient = null;
 let roleChart = null;
 let departmentRealtimeChannel = null;
 let brainReloadInFlight = false;
 let brainAutoSyncTimer = null;
+let contextBroadcast = null;
+let twoFactorExpiresAt = 0;
+let twoFactorInterval = null;
+let pendingTwoFactorRole = null;
+let pendingTwoFactorEmail = null;
 const GLOBAL_CONTEXT_KEY = "kti-global-context-v1";
 const appContext = {
-  session: { activeRole: null, status: "No active session" },
+  session: { activeRole: null, status: "No active session", twoFactorVerified: false },
   theme: "dark",
   departmentData: {
     students: "",
@@ -41,6 +72,22 @@ const appContext = {
     administration: "",
     lecturers: "",
     alumni: ""
+  },
+  profilePhotos: {
+    students: "",
+    finance: "",
+    administration: "",
+    lecturers: "",
+    alumni: ""
+  },
+  syncMeta: {
+    departmentUpdatedAt: {
+      students: 0,
+      finance: 0,
+      administration: 0,
+      lecturers: 0,
+      alumni: 0
+    }
   }
 };
 
@@ -62,8 +109,17 @@ function hydrateContext() {
     if (parsed?.session) {
       appContext.session = { ...appContext.session, ...parsed.session };
     }
+    if (parsed?.profilePhotos) {
+      appContext.profilePhotos = { ...appContext.profilePhotos, ...parsed.profilePhotos };
+    }
     if (typeof parsed?.theme === "string") {
       appContext.theme = parsed.theme;
+    }
+    if (parsed?.syncMeta?.departmentUpdatedAt) {
+      appContext.syncMeta.departmentUpdatedAt = {
+        ...appContext.syncMeta.departmentUpdatedAt,
+        ...parsed.syncMeta.departmentUpdatedAt
+      };
     }
   } catch (error) {
     // Ignore invalid stored context and continue with defaults.
@@ -78,9 +134,62 @@ function renderDepartmentDataFromContext() {
   });
 }
 
-function updateDepartmentData(role, value) {
+function updateDepartmentData(role, value, options = {}) {
+  const incomingUpdatedAt = options.updatedAt || Date.now();
+  const currentUpdatedAt = appContext.syncMeta.departmentUpdatedAt[role] || 0;
+  if (incomingUpdatedAt < currentUpdatedAt) {
+    return;
+  }
+
   appContext.departmentData[role] = value;
+  appContext.syncMeta.departmentUpdatedAt[role] = incomingUpdatedAt;
   saveContext();
+
+  if (options.broadcast !== false && contextBroadcast) {
+    contextBroadcast.postMessage({
+      type: "department-sync",
+      role,
+      value,
+      updatedAt: incomingUpdatedAt
+    });
+  }
+}
+
+function renderProfilePhotosFromContext() {
+  Object.entries(photoPreviewByRole).forEach(([role, img]) => {
+    if (!img) {
+      return;
+    }
+    const src = appContext.profilePhotos[role];
+    img.src = src || "https://placehold.co/96x96/0f172a/67e8f9?text=Photo";
+  });
+}
+
+function updateProfilePhoto(role, imageDataUrl) {
+  appContext.profilePhotos[role] = imageDataUrl || "";
+  saveContext();
+  renderProfilePhotosFromContext();
+}
+
+function setupContextBroadcast() {
+  if (typeof BroadcastChannel === "undefined") {
+    return;
+  }
+  contextBroadcast = new BroadcastChannel("kti-portal-sync");
+  contextBroadcast.onmessage = (event) => {
+    const payload = event.data;
+    if (!payload || payload.type !== "department-sync") {
+      return;
+    }
+    updateDepartmentData(payload.role, payload.value, {
+      updatedAt: payload.updatedAt,
+      broadcast: false
+    });
+    const textarea = textAreaByRole[payload.role];
+    if (textarea) {
+      textarea.value = payload.value;
+    }
+  };
 }
 
 function setBrainStatus(message, tone = "ok") {
@@ -123,8 +232,9 @@ function startDepartmentRealtimeSync(role) {
       },
       (payload) => {
         const latestContent = payload.new?.content;
+        const latestUpdatedAt = payload.new?.updated_at ? new Date(payload.new.updated_at).getTime() : Date.now();
         if (typeof latestContent === "string") {
-          updateDepartmentData(role, latestContent);
+          updateDepartmentData(role, latestContent, { updatedAt: latestUpdatedAt });
           const textarea = textAreaByRole[role];
           if (textarea) {
             textarea.value = latestContent;
@@ -211,6 +321,7 @@ function applyRoleView() {
     topNav.classList.add("locked");
     appContext.session.activeRole = null;
     appContext.session.status = "No active session";
+    appContext.session.twoFactorVerified = false;
     sessionText.textContent = appContext.session.status;
     logoutBtn.classList.add("hidden");
     stopDepartmentRealtimeSync();
@@ -222,6 +333,7 @@ function applyRoleView() {
   topNav.classList.remove("locked");
   appContext.session.activeRole = activeRole;
   appContext.session.status = `Logged in as: ${capitalize(activeRole)}`;
+  appContext.session.twoFactorVerified = true;
   sessionText.textContent = appContext.session.status;
   logoutBtn.classList.remove("hidden");
   saveContext();
@@ -311,9 +423,10 @@ async function loginUser() {
     return;
   }
 
-  activeRole = role;
-  statusText.textContent = `Login successful for ${role}.`;
-  applyRoleView();
+  pendingTwoFactorRole = role;
+  pendingTwoFactorEmail = email;
+  await sendTwoFactorCode(email);
+  statusText.textContent = "Password accepted. Verification code sent to your email.";
 }
 
 async function logoutUser() {
@@ -339,14 +452,90 @@ async function restoreSession() {
 
   try {
     const role = await fetchCurrentRole();
-    if (securedRoles.includes(role)) {
+    if (securedRoles.includes(role) && appContext.session.twoFactorVerified) {
       activeRole = role;
       statusText.textContent = `Session restored for ${role}.`;
+    } else if (securedRoles.includes(role)) {
+      statusText.textContent = "Session found. Complete two-factor verification to continue.";
     }
   } catch (error) {
     statusText.textContent = "Session found but role lookup failed.";
   }
 
+  applyRoleView();
+}
+
+function showTwoFactorBox(show) {
+  if (!twoFactorBox) {
+    return;
+  }
+  twoFactorBox.classList.toggle("hidden", !show);
+}
+
+function startTwoFactorTimer() {
+  if (twoFactorInterval) {
+    clearInterval(twoFactorInterval);
+  }
+  twoFactorInterval = setInterval(() => {
+    const remaining = Math.max(0, Math.ceil((twoFactorExpiresAt - Date.now()) / 1000));
+    if (twoFactorTimer) {
+      twoFactorTimer.textContent = String(remaining);
+    }
+    if (remaining <= 0) {
+      clearInterval(twoFactorInterval);
+      statusText.textContent = "Verification code expired. Click Resend.";
+    }
+  }, 1000);
+}
+
+async function sendTwoFactorCode(email) {
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false }
+  });
+  if (error) {
+    statusText.textContent = `Failed to send verification code. ${error.message}`;
+    return;
+  }
+
+  twoFactorExpiresAt = Date.now() + 60000;
+  showTwoFactorBox(true);
+  if (twoFactorCode) {
+    twoFactorCode.value = "";
+  }
+  startTwoFactorTimer();
+}
+
+async function verifyTwoFactorCode() {
+  if (!pendingTwoFactorEmail || !pendingTwoFactorRole) {
+    statusText.textContent = "Please login with email and password first.";
+    return;
+  }
+  if (!twoFactorCode.value.trim()) {
+    statusText.textContent = "Enter the verification code.";
+    return;
+  }
+  if (Date.now() > twoFactorExpiresAt) {
+    statusText.textContent = "Verification code expired. Click Resend.";
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.verifyOtp({
+    email: pendingTwoFactorEmail,
+    token: twoFactorCode.value.trim(),
+    type: "email"
+  });
+  if (error) {
+    statusText.textContent = `Invalid verification code. ${error.message}`;
+    return;
+  }
+
+  activeRole = pendingTwoFactorRole;
+  showTwoFactorBox(false);
+  if (twoFactorInterval) {
+    clearInterval(twoFactorInterval);
+  }
+  statusText.textContent = `Two-factor verified. Welcome ${activeRole}.`;
   applyRoleView();
 }
 
@@ -448,7 +637,11 @@ async function saveDepartmentData(role) {
   const { error } = await supabaseClient
     .from("department_data")
     .upsert(
-      { department_role: role, content: payload, updated_at: new Date().toISOString() },
+      {
+        department_role: role,
+        content: payload,
+        updated_at: new Date(appContext.syncMeta.departmentUpdatedAt[role] || Date.now()).toISOString()
+      },
       { onConflict: "department_role" }
     );
 
@@ -468,7 +661,7 @@ async function loadDepartmentData(role) {
 
   const { data, error } = await supabaseClient
     .from("department_data")
-    .select("content")
+    .select("content, updated_at")
     .eq("department_role", role)
     .maybeSingle();
 
@@ -481,7 +674,8 @@ async function loadDepartmentData(role) {
   if (textarea) {
     textarea.value = data?.content || "";
   }
-  updateDepartmentData(role, data?.content || "");
+  const remoteUpdatedAt = data?.updated_at ? new Date(data.updated_at).getTime() : Date.now();
+  updateDepartmentData(role, data?.content || "", { updatedAt: remoteUpdatedAt });
   statusText.textContent = `Loaded ${role} data from Supabase.`;
 }
 
@@ -503,6 +697,19 @@ goBtn.addEventListener("click", async () => {
 
 registerBtn.addEventListener("click", async () => {
   await registerUser();
+});
+
+verifyCodeBtn.addEventListener("click", async () => {
+  await verifyTwoFactorCode();
+});
+
+resendCodeBtn.addEventListener("click", async () => {
+  if (!pendingTwoFactorEmail) {
+    statusText.textContent = "No pending verification. Login first.";
+    return;
+  }
+  await sendTwoFactorCode(pendingTwoFactorEmail);
+  statusText.textContent = "New verification code sent.";
 });
 
 logoutBtn.addEventListener("click", async () => {
@@ -620,7 +827,7 @@ Object.entries(textAreaByRole).forEach(([role, textarea]) => {
     return;
   }
   textarea.addEventListener("input", () => {
-    updateDepartmentData(role, textarea.value);
+    updateDepartmentData(role, textarea.value, { updatedAt: Date.now() });
   });
 });
 
@@ -630,6 +837,7 @@ window.addEventListener("storage", (event) => {
   }
   hydrateContext();
   renderDepartmentDataFromContext();
+  renderProfilePhotosFromContext();
   if (!activeRole && appContext.session.status) {
     sessionText.textContent = appContext.session.status;
   }
@@ -656,9 +864,47 @@ function startBrainAutoSync() {
 
 year.textContent = new Date().getFullYear();
 initializeSupabase();
+setupContextBroadcast();
 hydrateContext();
 renderDepartmentDataFromContext();
+renderProfilePhotosFromContext();
 applyTheme(appContext.theme || "dark");
 renderRoleChart();
 restoreSession();
 startBrainAutoSync();
+
+Object.entries(photoInputByRole).forEach(([role, input]) => {
+  if (!input) {
+    return;
+  }
+  input.addEventListener("change", () => {
+    const file = input.files && input.files[0];
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      statusText.textContent = "Please select a valid image file.";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateProfilePhoto(role, reader.result);
+      statusText.textContent = `${capitalize(role)} profile photo updated.`;
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+Object.entries(photoClearByRole).forEach(([role, button]) => {
+  if (!button) {
+    return;
+  }
+  button.addEventListener("click", () => {
+    updateProfilePhoto(role, "");
+    const input = photoInputByRole[role];
+    if (input) {
+      input.value = "";
+    }
+    statusText.textContent = `${capitalize(role)} profile photo cleared.`;
+  });
+});
