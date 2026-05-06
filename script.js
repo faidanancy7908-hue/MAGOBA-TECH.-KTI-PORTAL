@@ -26,6 +26,57 @@ const textAreaByRole = {
 let activeRole = null;
 let supabaseClient = null;
 let roleChart = null;
+const GLOBAL_CONTEXT_KEY = "kti-global-context-v1";
+const appContext = {
+  session: { activeRole: null, status: "No active session" },
+  theme: "dark",
+  departmentData: {
+    students: "",
+    finance: "",
+    administration: "",
+    lecturers: "",
+    alumni: ""
+  }
+};
+
+function saveContext() {
+  localStorage.setItem(GLOBAL_CONTEXT_KEY, JSON.stringify(appContext));
+}
+
+function hydrateContext() {
+  const raw = localStorage.getItem(GLOBAL_CONTEXT_KEY);
+  if (!raw) {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed?.departmentData) {
+      appContext.departmentData = { ...appContext.departmentData, ...parsed.departmentData };
+    }
+    if (parsed?.session) {
+      appContext.session = { ...appContext.session, ...parsed.session };
+    }
+    if (typeof parsed?.theme === "string") {
+      appContext.theme = parsed.theme;
+    }
+  } catch (error) {
+    // Ignore invalid stored context and continue with defaults.
+  }
+}
+
+function renderDepartmentDataFromContext() {
+  Object.entries(textAreaByRole).forEach(([role, textarea]) => {
+    if (textarea) {
+      textarea.value = appContext.departmentData[role] || "";
+    }
+  });
+}
+
+function updateDepartmentData(role, value) {
+  appContext.departmentData[role] = value;
+  saveContext();
+}
 
 function initializeSupabase() {
   const hasSupabaseLib = typeof window.supabase !== "undefined";
@@ -100,15 +151,21 @@ function applyRoleView() {
 
   if (!activeRole) {
     topNav.classList.add("locked");
-    sessionText.textContent = "No active session";
+    appContext.session.activeRole = null;
+    appContext.session.status = "No active session";
+    sessionText.textContent = appContext.session.status;
     logoutBtn.classList.add("hidden");
+    saveContext();
     openPanel("home");
     return;
   }
 
   topNav.classList.remove("locked");
-  sessionText.textContent = `Logged in as: ${capitalize(activeRole)}`;
+  appContext.session.activeRole = activeRole;
+  appContext.session.status = `Logged in as: ${capitalize(activeRole)}`;
+  sessionText.textContent = appContext.session.status;
   logoutBtn.classList.remove("hidden");
+  saveContext();
   openPanel(activeRole);
 }
 
@@ -276,7 +333,7 @@ async function saveDepartmentData(role) {
   }
 
   const textarea = textAreaByRole[role];
-  const payload = textarea ? textarea.value.trim() : "";
+  const payload = (appContext.departmentData[role] || "").trim();
   if (!payload) {
     statusText.textContent = "Nothing to save. Enter data before saving.";
     return;
@@ -318,6 +375,7 @@ async function loadDepartmentData(role) {
   if (textarea) {
     textarea.value = data?.content || "";
   }
+  updateDepartmentData(role, data?.content || "");
   statusText.textContent = `Loaded ${role} data from Supabase.`;
 }
 
@@ -356,9 +414,10 @@ function applyTheme(mode) {
 }
 
 themeToggle.addEventListener("click", () => {
-  const current = localStorage.getItem("kti-theme") || "dark";
+  const current = appContext.theme || "dark";
   const next = current === "dark" ? "light" : "dark";
-  localStorage.setItem("kti-theme", next);
+  appContext.theme = next;
+  saveContext();
   applyTheme(next);
 });
 
@@ -446,8 +505,30 @@ dataButtons.forEach((button) => {
   });
 });
 
+Object.entries(textAreaByRole).forEach(([role, textarea]) => {
+  if (!textarea) {
+    return;
+  }
+  textarea.addEventListener("input", () => {
+    updateDepartmentData(role, textarea.value);
+  });
+});
+
+window.addEventListener("storage", (event) => {
+  if (event.key !== GLOBAL_CONTEXT_KEY || !event.newValue) {
+    return;
+  }
+  hydrateContext();
+  renderDepartmentDataFromContext();
+  if (!activeRole && appContext.session.status) {
+    sessionText.textContent = appContext.session.status;
+  }
+});
+
 year.textContent = new Date().getFullYear();
 initializeSupabase();
-applyTheme(localStorage.getItem("kti-theme") || "dark");
+hydrateContext();
+renderDepartmentDataFromContext();
+applyTheme(appContext.theme || "dark");
 renderRoleChart();
 restoreSession();
