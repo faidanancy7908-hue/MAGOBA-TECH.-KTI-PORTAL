@@ -11,6 +11,7 @@ const brainRefreshBtn = document.getElementById("brainRefreshBtn");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
 const statusText = document.getElementById("statusText");
+const brainStatus = document.getElementById("brainStatus");
 const year = document.getElementById("year");
 const sessionText = document.getElementById("sessionText");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -28,6 +29,8 @@ let activeRole = null;
 let supabaseClient = null;
 let roleChart = null;
 let departmentRealtimeChannel = null;
+let brainReloadInFlight = false;
+let brainAutoSyncTimer = null;
 const GLOBAL_CONTEXT_KEY = "kti-global-context-v1";
 const appContext = {
   session: { activeRole: null, status: "No active session" },
@@ -78,6 +81,20 @@ function renderDepartmentDataFromContext() {
 function updateDepartmentData(role, value) {
   appContext.departmentData[role] = value;
   saveContext();
+}
+
+function setBrainStatus(message, tone = "ok") {
+  if (!brainStatus) {
+    return;
+  }
+  brainStatus.textContent = `Brain: ${message}`;
+  if (tone === "warn") {
+    brainStatus.className = "mt-1 text-[11px] text-amber-300";
+  } else if (tone === "error") {
+    brainStatus.className = "mt-1 text-[11px] text-rose-300";
+  } else {
+    brainStatus.className = "mt-1 text-[11px] text-emerald-300";
+  }
 }
 
 function stopDepartmentRealtimeSync() {
@@ -334,6 +351,11 @@ async function restoreSession() {
 }
 
 async function instantBrainReload() {
+  if (brainReloadInFlight) {
+    return;
+  }
+  brainReloadInFlight = true;
+  setBrainStatus("Syncing...", "warn");
   hydrateContext();
   renderDepartmentDataFromContext();
   applyTheme(appContext.theme || "dark");
@@ -342,6 +364,8 @@ async function instantBrainReload() {
   if (!supabaseClient) {
     applyRoleView();
     statusText.textContent = "Instant sync complete (local context).";
+    setBrainStatus("Synced (local)");
+    brainReloadInFlight = false;
     return;
   }
 
@@ -350,6 +374,8 @@ async function instantBrainReload() {
     activeRole = null;
     applyRoleView();
     statusText.textContent = "Instant sync complete (guest mode).";
+    setBrainStatus("Synced (guest)");
+    brainReloadInFlight = false;
     return;
   }
 
@@ -361,10 +387,13 @@ async function instantBrainReload() {
     }
     applyRoleView();
     statusText.textContent = "Instant sync complete. Application brain reloaded.";
+    setBrainStatus("Synced");
   } catch (error) {
     applyRoleView();
     statusText.textContent = "Instant sync completed with partial role refresh.";
+    setBrainStatus("Partial sync", "warn");
   }
+  brainReloadInFlight = false;
 }
 
 async function exportSectionAsPng(sectionId) {
@@ -613,6 +642,18 @@ window.addEventListener("keydown", async (event) => {
   }
 });
 
+function startBrainAutoSync() {
+  if (brainAutoSyncTimer) {
+    clearInterval(brainAutoSyncTimer);
+  }
+  brainAutoSyncTimer = setInterval(async () => {
+    if (document.hidden) {
+      return;
+    }
+    await instantBrainReload();
+  }, 90000);
+}
+
 year.textContent = new Date().getFullYear();
 initializeSupabase();
 hydrateContext();
@@ -620,3 +661,4 @@ renderDepartmentDataFromContext();
 applyTheme(appContext.theme || "dark");
 renderRoleChart();
 restoreSession();
+startBrainAutoSync();
