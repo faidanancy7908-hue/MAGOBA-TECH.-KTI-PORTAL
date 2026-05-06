@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KITGUM TECHNICAL INSTITUTE - Student Portal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <h1>KITGUM TECHNICAL INSTITUTE</h1>
+      <p class="tagline">Integrated Web Portal for Academic and Institutional Stakeholders</p>
+      <nav class="top-nav">
+        <button class="nav-btn active" data-target="home">Home</button>
+        <button class="nav-btn" data-target="students">Students</button>
+        <button class="nav-btn" data-target="finance">Finance</button>
+        <button class="nav-btn" data-target="administration">Administration</button>
+        <button class="nav-btn" data-target="lecturers">Lecturers</button>
+        <button class="nav-btn" data-target="alumni">Alumni</button>
+      </nav>
+      <div class="session-bar">
+        <span id="sessionText">No active session</span>
+        <button id="logoutBtn" class="secondary-btn">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="home" class="panel active">
+      <h2>Welcome to KTI Portal</h2>
+      <p>
+        This portal provides a single digital entry point for all core stakeholders of KITGUM TECHNICAL INSTITUTE:
+        students, finance office, administration, lecturers, and alumni.
+      </p>
+      <div class="cards">
+        <article class="card">
+          <h3>Student Services</h3>
+          <p>Course registration, timetable viewing, results tracking, and announcements.</p>
+        </article>
+        <article class="card">
+          <h3>Finance Services</h3>
+          <p>Fee status management, payment verification, and financial report summaries.</p>
+        </article>
+        <article class="card">
+          <h3>Institution Services</h3>
+          <p>Administrative workflows, lecturer tools, and alumni engagement.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="students" class="panel">
+      <h2>Students Dashboard</h2>
+      <div class="export-actions">
+        <button class="export-btn" data-format="pdf" data-section="students">Export PDF</button>
+        <button class="export-btn" data-format="png" data-section="students">Export PNG</button>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>My Courses</h3>
+          <p>View current semester units and registration status.</p>
+        </article>
+        <article class="card">
+          <h3>Results</h3>
+          <p>Track continuous assessments and end-of-term exam results.</p>
+        </article>
+        <article class="card">
+          <h3>Announcements</h3>
+          <p>Read notices from the institute and department heads.</p>
+        </article>
+      </div>
+      <div class="data-portability">
+        <h3>Department Data (Supabase)</h3>
+        <textarea id="studentsData" class="data-input" rows="5" placeholder="Enter students department data here..."></textarea>
+        <div class="data-actions">
+          <button class="data-btn" data-action="save" data-role="students">Save to Supabase</button>
+          <button class="data-btn" data-action="load" data-role="students">Load from Supabase</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="finance" class="panel">
+      <h2>Finance Dashboard</h2>
+      <div class="export-actions">
+        <button class="export-btn" data-format="pdf" data-section="finance">Export PDF</button>
+        <button class="export-btn" data-format="png" data-section="finance">Export PNG</button>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>Fee Statements</h3>
+          <p>Generate and share student financial statements quickly.</p>
+        </article>
+        <article class="card">
+          <h3>Payment Tracking</h3>
+          <p>Monitor paid, pending, and overdue balances by intake.</p>
+        </article>
+        <article class="card">
+          <h3>Receipts</h3>
+          <p>Issue and validate electronic fee receipts.</p>
+        </article>
+      </div>
+      <div class="data-portability">
+        <h3>Department Data (Supabase)</h3>
+        <textarea id="financeData" class="data-input" rows="5" placeholder="Enter finance department data here..."></textarea>
+        <div class="data-actions">
+          <button class="data-btn" data-action="save" data-role="finance">Save to Supabase</button>
+          <button class="data-btn" data-action="load" data-role="finance">Load from Supabase</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="administration" class="panel">
+      <h2>Administration Dashboard</h2>
+      <div class="export-actions">
+        <button class="export-btn" data-format="pdf" data-section="administration">Export PDF</button>
+        <button class="export-btn" data-format="png" data-section="administration">Export PNG</button>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>Student Records</h3>
+          <p>Manage enrollment data and registration compliance.</p>
+        </article>
+        <article class="card">
+          <h3>Academic Calendar</h3>
+          <p>Publish semester timelines, exams, and institutional events.</p>
+        </article>
+        <article class="card">
+          <h3>Department Oversight</h3>
+          <p>Coordinate internal units and approve key workflows.</p>
+        </article>
+      </div>
+      <div class="data-portability">
+        <h3>Department Data (Supabase)</h3>
+        <textarea id="administrationData" class="data-input" rows="5" placeholder="Enter administration department data here..."></textarea>
+        <div class="data-actions">
+          <button class="data-btn" data-action="save" data-role="administration">Save to Supabase</button>
+          <button class="data-btn" data-action="load" data-role="administration">Load from Supabase</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="lecturers" class="panel">
+      <h2>Lecturers Dashboard</h2>
+      <div class="export-actions">
+        <button class="export-btn" data-format="pdf" data-section="lecturers">Export PDF</button>
+        <button class="export-btn" data-format="png" data-section="lecturers">Export PNG</button>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>Class Lists</h3>
+          <p>Access assigned classes and student attendance details.</p>
+        </article>
+        <article class="card">
+          <h3>Assessment Upload</h3>
+          <p>Submit marks and feedback for each module.</p>
+        </article>
+        <article class="card">
+          <h3>Teaching Resources</h3>
+          <p>Share notes, assignments, and class updates.</p>
+        </article>
+      </div>
+      <div class="data-portability">
+        <h3>Department Data (Supabase)</h3>
+        <textarea id="lecturersData" class="data-input" rows="5" placeholder="Enter lecturers department data here..."></textarea>
+        <div class="data-actions">
+          <button class="data-btn" data-action="save" data-role="lecturers">Save to Supabase</button>
+          <button class="data-btn" data-action="load" data-role="lecturers">Load from Supabase</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="alumni" class="panel">
+      <h2>Alumni Dashboard</h2>
+      <div class="export-actions">
+        <button class="export-btn" data-format="pdf" data-section="alumni">Export PDF</button>
+        <button class="export-btn" data-format="png" data-section="alumni">Export PNG</button>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>Alumni Directory</h3>
+          <p>Keep contact and professional profile details updated.</p>
+        </article>
+        <article class="card">
+          <h3>Opportunities</h3>
+          <p>View jobs, internships, and collaboration openings.</p>
+        </article>
+        <article class="card">
+          <h3>Institution Engagement</h3>
+          <p>Participate in mentorship, events, and community outreach.</p>
+        </article>
+      </div>
+      <div class="data-portability">
+        <h3>Department Data (Supabase)</h3>
+        <textarea id="alumniData" class="data-input" rows="5" placeholder="Enter alumni department data here..."></textarea>
+        <div class="data-actions">
+          <button class="data-btn" data-action="save" data-role="alumni">Save to Supabase</button>
+          <button class="data-btn" data-action="load" data-role="alumni">Load from Supabase</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel active tools-panel" id="quick-tools">
+      <h2>Role-Based Access Login</h2>
+      <div class="form-row">
+        <label for="roleSelect">Select Stakeholder</label>
+        <select id="roleSelect">
+          <option value="students">Students</option>
+          <option value="finance">Finance</option>
+          <option value="administration">Administration</option>
+          <option value="lecturers">Lecturers</option>
+          <option value="alumni">Alumni</option>
+        </select>
+        <button id="goBtn">Login</button>
+      </div>
+      <p id="statusText" class="status">Choose your stakeholder role and click "Login".</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> KITGUM TECHNICAL INSTITUTE. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
