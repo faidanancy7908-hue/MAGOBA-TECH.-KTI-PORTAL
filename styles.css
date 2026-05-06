@@ -187,7 +187,9 @@ label {
 }
 
 select,
-#goBtn {
+#goBtn,
+#emailInput,
+#passwordInput {
   padding: 0.55rem 0.7rem;
   border-radius: 8px;
   border: 1px solid #ccd8e4;
@@ -203,6 +205,19 @@ select,
 
 #goBtn:hover {
   background: var(--primary-dark);
+}
+
+.ghost-btn {
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #c7d7e8;
+  background: #eef5fb;
+  color: var(--primary-dark);
+  cursor: pointer;
+}
+
+.ghost-btn:hover {
+  background: #dfeefb;
 }
 
 .session-bar {
@@ -228,6 +243,12 @@ select,
 .status {
   margin-top: 0.85rem;
   color: var(--muted);
+}
+
+.status-note {
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 footer {

@@ -200,7 +200,13 @@
     </section>
 
     <section class="panel active tools-panel" id="quick-tools">
-      <h2>Role-Based Access Login</h2>
+      <h2>Secure Access (Supabase Auth)</h2>
+      <div class="form-row">
+        <label for="emailInput">Email</label>
+        <input id="emailInput" type="email" placeholder="name@example.com" />
+        <label for="passwordInput">Password</label>
+        <input id="passwordInput" type="password" placeholder="Enter password" />
+      </div>
       <div class="form-row">
         <label for="roleSelect">Select Stakeholder</label>
         <select id="roleSelect">
@@ -211,8 +217,10 @@
           <option value="alumni">Alumni</option>
         </select>
         <button id="goBtn">Login</button>
+        <button id="registerBtn" class="ghost-btn">Register</button>
       </div>
-      <p id="statusText" class="status">Choose your stakeholder role and click "Login".</p>
+      <p class="status-note">Use role selector when registering a new account. Login role is read from your assigned Supabase profile.</p>
+      <p id="statusText" class="status">Enter your email and password to login.</p>
     </section>
   </main>
 

@@ -3,6 +3,9 @@ const contentPanels = document.querySelectorAll("main .panel");
 const topNav = document.querySelector(".top-nav");
 const roleSelect = document.getElementById("roleSelect");
 const goBtn = document.getElementById("goBtn");
+const registerBtn = document.getElementById("registerBtn");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
 const statusText = document.getElementById("statusText");
 const year = document.getElementById("year");
 const sessionText = document.getElementById("sessionText");
@@ -32,9 +35,13 @@ function initializeSupabase() {
   supabaseClient = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 }
 
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 function openPanel(panelId) {
   if (securedRoles.includes(panelId) && panelId !== activeRole) {
-    statusText.textContent = "Access denied. Please login with the required role.";
+    statusText.textContent = "Access denied. Please login with your assigned role.";
     return;
   }
 
@@ -50,7 +57,7 @@ function openPanel(panelId) {
     button.classList.toggle("active", button.dataset.target === panelId);
   });
 
-  statusText.textContent = `Now viewing: ${panelId.charAt(0).toUpperCase()}${panelId.slice(1)} dashboard`;
+  statusText.textContent = `Now viewing: ${capitalize(panelId)} dashboard`;
 }
 
 function applyRoleView() {
@@ -69,9 +76,130 @@ function applyRoleView() {
   }
 
   topNav.classList.remove("locked");
-  sessionText.textContent = `Logged in as: ${activeRole.charAt(0).toUpperCase()}${activeRole.slice(1)}`;
+  sessionText.textContent = `Logged in as: ${capitalize(activeRole)}`;
   logoutBtn.style.display = "inline-block";
   openPanel(activeRole);
+}
+
+async function fetchCurrentRole() {
+  const { data, error } = await supabaseClient
+    .from("user_roles")
+    .select("role")
+    .single();
+
+  if (error || !data?.role) {
+    throw new Error(error?.message || "Role not found for this account.");
+  }
+
+  return data.role;
+}
+
+function getAuthInput() {
+  return {
+    email: emailInput.value.trim(),
+    password: passwordInput.value
+  };
+}
+
+async function registerUser() {
+  if (!supabaseClient) {
+    statusText.textContent = "Supabase is not configured. Update supabase-config.js first.";
+    return;
+  }
+
+  const { email, password } = getAuthInput();
+  const selectedRole = roleSelect.value;
+
+  if (!email || !password) {
+    statusText.textContent = "Enter email and password to register.";
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+  if (error) {
+    statusText.textContent = `Registration failed. ${error.message}`;
+    return;
+  }
+
+  const userId = data.user?.id;
+  if (!userId) {
+    statusText.textContent = "Registration created. Verify your email then login.";
+    return;
+  }
+
+  const { error: roleError } = await supabaseClient
+    .from("user_roles")
+    .upsert({ user_id: userId, role: selectedRole }, { onConflict: "user_id" });
+
+  if (roleError) {
+    statusText.textContent = `Account created but role save failed. ${roleError.message}`;
+    return;
+  }
+
+  statusText.textContent = `Registration successful. You can now login as ${selectedRole}.`;
+}
+
+async function loginUser() {
+  if (!supabaseClient) {
+    statusText.textContent = "Supabase is not configured. Update supabase-config.js first.";
+    return;
+  }
+
+  const { email, password } = getAuthInput();
+  if (!email || !password) {
+    statusText.textContent = "Enter email and password to login.";
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    statusText.textContent = `Login failed. ${error.message}`;
+    return;
+  }
+
+  const role = await fetchCurrentRole();
+  if (!securedRoles.includes(role)) {
+    statusText.textContent = "Your account role is invalid. Contact administration.";
+    return;
+  }
+
+  activeRole = role;
+  statusText.textContent = `Login successful for ${role}.`;
+  applyRoleView();
+}
+
+async function logoutUser() {
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+  }
+  activeRole = null;
+  statusText.textContent = "Session ended. Login again to continue.";
+  applyRoleView();
+}
+
+async function restoreSession() {
+  if (!supabaseClient) {
+    applyRoleView();
+    return;
+  }
+
+  const { data } = await supabaseClient.auth.getSession();
+  if (!data.session) {
+    applyRoleView();
+    return;
+  }
+
+  try {
+    const role = await fetchCurrentRole();
+    if (securedRoles.includes(role)) {
+      activeRole = role;
+      statusText.textContent = `Session restored for ${role}.`;
+    }
+  } catch (error) {
+    statusText.textContent = "Session found but role lookup failed.";
+  }
+
+  applyRoleView();
 }
 
 async function exportSectionAsPng(sectionId) {
@@ -148,9 +276,9 @@ async function loadDepartmentData(role) {
     .from("department_data")
     .select("content")
     .eq("department_role", role)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== "PGRST116") {
+  if (error) {
     statusText.textContent = `Load failed for ${role}. ${error.message}`;
     return;
   }
@@ -166,17 +294,16 @@ navButtons.forEach((button) => {
   button.addEventListener("click", () => openPanel(button.dataset.target));
 });
 
-goBtn.addEventListener("click", () => {
-  const selectedRole = roleSelect.value;
-  activeRole = selectedRole;
-  statusText.textContent = `Access granted for ${selectedRole}.`;
-  applyRoleView();
+goBtn.addEventListener("click", async () => {
+  await loginUser();
 });
 
-logoutBtn.addEventListener("click", () => {
-  activeRole = null;
-  statusText.textContent = "Session ended. Choose your stakeholder role and login again.";
-  applyRoleView();
+registerBtn.addEventListener("click", async () => {
+  await registerUser();
+});
+
+logoutBtn.addEventListener("click", async () => {
+  await logoutUser();
 });
 
 exportButtons.forEach((button) => {
@@ -230,4 +357,4 @@ dataButtons.forEach((button) => {
 
 year.textContent = new Date().getFullYear();
 initializeSupabase();
-applyRoleView();
+restoreSession();
