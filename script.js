@@ -7,6 +7,7 @@ const roleSelect = document.getElementById("roleSelect");
 const goBtn = document.getElementById("goBtn");
 const registerBtn = document.getElementById("registerBtn");
 const themeToggle = document.getElementById("themeToggle");
+const brainRefreshBtn = document.getElementById("brainRefreshBtn");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
 const statusText = document.getElementById("statusText");
@@ -26,6 +27,7 @@ const textAreaByRole = {
 let activeRole = null;
 let supabaseClient = null;
 let roleChart = null;
+let departmentRealtimeChannel = null;
 const GLOBAL_CONTEXT_KEY = "kti-global-context-v1";
 const appContext = {
   session: { activeRole: null, status: "No active session" },
@@ -76,6 +78,45 @@ function renderDepartmentDataFromContext() {
 function updateDepartmentData(role, value) {
   appContext.departmentData[role] = value;
   saveContext();
+}
+
+function stopDepartmentRealtimeSync() {
+  if (!supabaseClient || !departmentRealtimeChannel) {
+    return;
+  }
+  supabaseClient.removeChannel(departmentRealtimeChannel);
+  departmentRealtimeChannel = null;
+}
+
+function startDepartmentRealtimeSync(role) {
+  if (!supabaseClient || !role) {
+    return;
+  }
+
+  stopDepartmentRealtimeSync();
+  departmentRealtimeChannel = supabaseClient
+    .channel(`department-data-${role}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "department_data",
+        filter: `department_role=eq.${role}`
+      },
+      (payload) => {
+        const latestContent = payload.new?.content;
+        if (typeof latestContent === "string") {
+          updateDepartmentData(role, latestContent);
+          const textarea = textAreaByRole[role];
+          if (textarea) {
+            textarea.value = latestContent;
+          }
+          statusText.textContent = `${capitalize(role)} data synchronized in real-time.`;
+        }
+      }
+    )
+    .subscribe();
 }
 
 function initializeSupabase() {
@@ -155,6 +196,7 @@ function applyRoleView() {
     appContext.session.status = "No active session";
     sessionText.textContent = appContext.session.status;
     logoutBtn.classList.add("hidden");
+    stopDepartmentRealtimeSync();
     saveContext();
     openPanel("home");
     return;
@@ -166,6 +208,7 @@ function applyRoleView() {
   sessionText.textContent = appContext.session.status;
   logoutBtn.classList.remove("hidden");
   saveContext();
+  startDepartmentRealtimeSync(activeRole);
   openPanel(activeRole);
 }
 
@@ -290,6 +333,40 @@ async function restoreSession() {
   applyRoleView();
 }
 
+async function instantBrainReload() {
+  hydrateContext();
+  renderDepartmentDataFromContext();
+  applyTheme(appContext.theme || "dark");
+  renderRoleChart();
+
+  if (!supabaseClient) {
+    applyRoleView();
+    statusText.textContent = "Instant sync complete (local context).";
+    return;
+  }
+
+  const { data } = await supabaseClient.auth.getSession();
+  if (!data.session) {
+    activeRole = null;
+    applyRoleView();
+    statusText.textContent = "Instant sync complete (guest mode).";
+    return;
+  }
+
+  try {
+    const role = await fetchCurrentRole();
+    if (securedRoles.includes(role)) {
+      activeRole = role;
+      await loadDepartmentData(role);
+    }
+    applyRoleView();
+    statusText.textContent = "Instant sync complete. Application brain reloaded.";
+  } catch (error) {
+    applyRoleView();
+    statusText.textContent = "Instant sync completed with partial role refresh.";
+  }
+}
+
 async function exportSectionAsPng(sectionId) {
   const section = document.getElementById(sectionId);
   if (!section || typeof html2canvas === "undefined") {
@@ -401,6 +478,10 @@ registerBtn.addEventListener("click", async () => {
 
 logoutBtn.addEventListener("click", async () => {
   await logoutUser();
+});
+
+brainRefreshBtn.addEventListener("click", async () => {
+  await instantBrainReload();
 });
 
 function applyTheme(mode) {
@@ -522,6 +603,13 @@ window.addEventListener("storage", (event) => {
   renderDepartmentDataFromContext();
   if (!activeRole && appContext.session.status) {
     sessionText.textContent = appContext.session.status;
+  }
+});
+
+window.addEventListener("keydown", async (event) => {
+  if (event.altKey && (event.key === "r" || event.key === "R")) {
+    event.preventDefault();
+    await instantBrainReload();
   }
 });
 
