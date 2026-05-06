@@ -1,9 +1,12 @@
 const navButtons = document.querySelectorAll(".nav-btn");
+const mobileNavButtons = document.querySelectorAll(".nav-btn-mobile");
+const sideNavButtons = document.querySelectorAll(".side-nav-btn");
 const contentPanels = document.querySelectorAll("main .panel");
 const topNav = document.querySelector(".top-nav");
 const roleSelect = document.getElementById("roleSelect");
 const goBtn = document.getElementById("goBtn");
 const registerBtn = document.getElementById("registerBtn");
+const themeToggle = document.getElementById("themeToggle");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
 const statusText = document.getElementById("statusText");
@@ -22,6 +25,7 @@ const textAreaByRole = {
 };
 let activeRole = null;
 let supabaseClient = null;
+let roleChart = null;
 
 function initializeSupabase() {
   const hasSupabaseLib = typeof window.supabase !== "undefined";
@@ -39,6 +43,35 @@ function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function setActiveNav(panelId) {
+  navButtons.forEach((button) => {
+    const isActive = button.dataset.target === panelId;
+    if (isActive) {
+      button.className = "nav-btn rounded-lg border border-cyan-300/40 bg-cyan-400/20 px-4 py-2 text-sm font-semibold text-cyan-100";
+    } else {
+      button.className = "nav-btn rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10";
+    }
+  });
+
+  mobileNavButtons.forEach((button) => {
+    const isActive = button.dataset.target === panelId;
+    if (isActive) {
+      button.className = "nav-btn-mobile rounded-xl bg-cyan-500/20 px-3 py-2 text-xs font-semibold text-cyan-100";
+    } else {
+      button.className = "nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-slate-300";
+    }
+  });
+
+  sideNavButtons.forEach((button) => {
+    const isActive = button.dataset.target === panelId;
+    if (isActive) {
+      button.className = "side-nav-btn w-full rounded-xl border border-cyan-300/40 bg-cyan-400/20 px-3 py-2 text-left text-sm font-semibold text-cyan-100";
+    } else {
+      button.className = "side-nav-btn w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-semibold text-slate-200 hover:bg-white/10";
+    }
+  });
+}
+
 function openPanel(panelId) {
   if (securedRoles.includes(panelId) && panelId !== activeRole) {
     statusText.textContent = "Access denied. Please login with your assigned role.";
@@ -47,15 +80,13 @@ function openPanel(panelId) {
 
   contentPanels.forEach((panel) => {
     if (panel.id === "quick-tools") {
-      panel.classList.toggle("active", !activeRole);
+      panel.classList.toggle("hidden", Boolean(activeRole));
       return;
     }
-    panel.classList.toggle("active", panel.id === panelId);
+    panel.classList.toggle("hidden", panel.id !== panelId);
   });
 
-  navButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.target === panelId);
-  });
+  setActiveNav(panelId);
 
   statusText.textContent = `Now viewing: ${capitalize(panelId)} dashboard`;
 }
@@ -70,14 +101,14 @@ function applyRoleView() {
   if (!activeRole) {
     topNav.classList.add("locked");
     sessionText.textContent = "No active session";
-    logoutBtn.style.display = "none";
+    logoutBtn.classList.add("hidden");
     openPanel("home");
     return;
   }
 
   topNav.classList.remove("locked");
   sessionText.textContent = `Logged in as: ${capitalize(activeRole)}`;
-  logoutBtn.style.display = "inline-block";
+  logoutBtn.classList.remove("hidden");
   openPanel(activeRole);
 }
 
@@ -294,6 +325,14 @@ navButtons.forEach((button) => {
   button.addEventListener("click", () => openPanel(button.dataset.target));
 });
 
+mobileNavButtons.forEach((button) => {
+  button.addEventListener("click", () => openPanel(button.dataset.target));
+});
+
+sideNavButtons.forEach((button) => {
+  button.addEventListener("click", () => openPanel(button.dataset.target));
+});
+
 goBtn.addEventListener("click", async () => {
   await loginUser();
 });
@@ -305,6 +344,58 @@ registerBtn.addEventListener("click", async () => {
 logoutBtn.addEventListener("click", async () => {
   await logoutUser();
 });
+
+function applyTheme(mode) {
+  if (mode === "light") {
+    document.body.classList.remove("bg-slate-950", "text-slate-100");
+    document.body.classList.add("bg-slate-100", "text-slate-900");
+  } else {
+    document.body.classList.remove("bg-slate-100", "text-slate-900");
+    document.body.classList.add("bg-slate-950", "text-slate-100");
+  }
+}
+
+themeToggle.addEventListener("click", () => {
+  const current = localStorage.getItem("kti-theme") || "dark";
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("kti-theme", next);
+  applyTheme(next);
+});
+
+function renderRoleChart() {
+  const chartCanvas = document.getElementById("roleChart");
+  if (!chartCanvas || typeof Chart === "undefined") {
+    return;
+  }
+  if (roleChart) {
+    roleChart.destroy();
+  }
+
+  roleChart = new Chart(chartCanvas, {
+    type: "bar",
+    data: {
+      labels: ["Students", "Finance", "Administration", "Lecturers", "Alumni"],
+      datasets: [
+        {
+          label: "Activity Index",
+          data: [82, 68, 74, 79, 63],
+          backgroundColor: ["#22d3ee", "#34d399", "#f59e0b", "#a78bfa", "#f472b6"],
+          borderRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.2)" } },
+        x: { ticks: { color: "#cbd5e1" }, grid: { display: false } }
+      }
+    }
+  });
+}
 
 exportButtons.forEach((button) => {
   button.addEventListener("click", async () => {
@@ -357,4 +448,6 @@ dataButtons.forEach((button) => {
 
 year.textContent = new Date().getFullYear();
 initializeSupabase();
+applyTheme(localStorage.getItem("kti-theme") || "dark");
+renderRoleChart();
 restoreSession();

@@ -3,233 +3,246 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KITGUM TECHNICAL INSTITUTE - Student Portal</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>KITGUM TECHNICAL INSTITUTE - Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header class="hero">
-    <div class="container">
-      <h1>KITGUM TECHNICAL INSTITUTE</h1>
-      <p class="tagline">Integrated Web Portal for Academic and Institutional Stakeholders</p>
-      <nav class="top-nav">
-        <button class="nav-btn active" data-target="home">Home</button>
-        <button class="nav-btn" data-target="students">Students</button>
-        <button class="nav-btn" data-target="finance">Finance</button>
-        <button class="nav-btn" data-target="administration">Administration</button>
-        <button class="nav-btn" data-target="lecturers">Lecturers</button>
-        <button class="nav-btn" data-target="alumni">Alumni</button>
-      </nav>
-      <div class="session-bar">
-        <span id="sessionText">No active session</span>
-        <button id="logoutBtn" class="secondary-btn">Logout</button>
+<body class="min-h-screen bg-slate-950 text-slate-100 transition-colors duration-300">
+  <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(59,130,246,0.28),transparent_35%),radial-gradient(circle_at_80%_15%,rgba(14,165,233,0.20),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(245,158,11,0.15),transparent_35%)]"></div>
+
+  <header class="border-b border-white/10 bg-slate-900/70 backdrop-blur">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">KITGUM TECHNICAL INSTITUTE</p>
+          <h1 class="mt-1 text-2xl font-bold text-white sm:text-3xl">Premium Student & Department Portal</h1>
+          <p class="mt-2 text-sm text-slate-300">Role-based access for Students, Finance, Administration, Lecturers, and Alumni</p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+          <p id="sessionText" class="font-medium text-cyan-200">No active session</p>
+          <div class="mt-2 flex gap-2">
+            <button id="themeToggle" class="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold hover:bg-white/20">Theme</button>
+            <button id="logoutBtn" class="hidden w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold hover:bg-white/20">Logout</button>
+          </div>
+        </div>
       </div>
+
+      <nav class="top-nav flex flex-wrap gap-2">
+        <button class="nav-btn rounded-lg border border-cyan-300/40 bg-cyan-400/20 px-4 py-2 text-sm font-semibold text-cyan-100" data-target="home">Home</button>
+        <button class="nav-btn rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10" data-target="students">Students</button>
+        <button class="nav-btn rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10" data-target="finance">Finance</button>
+        <button class="nav-btn rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10" data-target="administration">Administration</button>
+        <button class="nav-btn rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10" data-target="lecturers">Lecturers</button>
+        <button class="nav-btn rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10" data-target="alumni">Alumni</button>
+      </nav>
     </div>
   </header>
 
-  <main class="container">
-    <section id="home" class="panel active">
-      <h2>Welcome to KTI Portal</h2>
-      <p>
-        This portal provides a single digital entry point for all core stakeholders of KITGUM TECHNICAL INSTITUTE:
-        students, finance office, administration, lecturers, and alumni.
-      </p>
-      <div class="cards">
-        <article class="card">
-          <h3>Student Services</h3>
-          <p>Course registration, timetable viewing, results tracking, and announcements.</p>
+  <main class="mx-auto flex w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <aside class="hidden w-64 shrink-0 rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-xl lg:block">
+      <h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200">Navigation</h3>
+      <div class="space-y-2">
+        <button class="side-nav-btn w-full rounded-xl border border-cyan-300/40 bg-cyan-400/20 px-3 py-2 text-left text-sm font-semibold text-cyan-100" data-target="home">Home</button>
+        <button class="side-nav-btn w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-semibold text-slate-200 hover:bg-white/10" data-target="students">Students</button>
+        <button class="side-nav-btn w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-semibold text-slate-200 hover:bg-white/10" data-target="finance">Finance</button>
+        <button class="side-nav-btn w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-semibold text-slate-200 hover:bg-white/10" data-target="administration">Administration</button>
+        <button class="side-nav-btn w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-semibold text-slate-200 hover:bg-white/10" data-target="lecturers">Lecturers</button>
+        <button class="side-nav-btn w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-semibold text-slate-200 hover:bg-white/10" data-target="alumni">Alumni</button>
+      </div>
+      <p class="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">Desktop sidebar is optimized for quick administrative navigation.</p>
+    </aside>
+
+    <div class="flex-1 space-y-6">
+    <section id="home" class="panel rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-cyan-900/20 transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Welcome to KTI Digital Campus</h2>
+      <p class="mt-2 text-sm text-slate-300">A professional unified portal for academic operations, finance records, administration workflows, teaching activities, and alumni engagement.</p>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-cyan-200">Students</p>
+          <p class="mt-2 text-2xl font-bold text-white">2,184</p>
+        </div>
+        <div class="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-emerald-200">Fee Collection</p>
+          <p class="mt-2 text-2xl font-bold text-white">84%</p>
+        </div>
+        <div class="rounded-xl border border-amber-300/30 bg-amber-500/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-amber-200">Active Lecturers</p>
+          <p class="mt-2 text-2xl font-bold text-white">146</p>
+        </div>
+        <div class="rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-fuchsia-200">Alumni Network</p>
+          <p class="mt-2 text-2xl font-bold text-white">5,032</p>
+        </div>
+      </div>
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <article class="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4">
+          <h3 class="font-semibold text-cyan-100">Student Services</h3>
+          <p class="mt-2 text-sm text-slate-300">Registration, results, timetables, announcements.</p>
         </article>
-        <article class="card">
-          <h3>Finance Services</h3>
-          <p>Fee status management, payment verification, and financial report summaries.</p>
+        <article class="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-4">
+          <h3 class="font-semibold text-emerald-100">Finance Services</h3>
+          <p class="mt-2 text-sm text-slate-300">Statements, receipts, payment reconciliation.</p>
         </article>
-        <article class="card">
-          <h3>Institution Services</h3>
-          <p>Administrative workflows, lecturer tools, and alumni engagement.</p>
+        <article class="rounded-xl border border-amber-300/30 bg-amber-500/10 p-4">
+          <h3 class="font-semibold text-amber-100">Institution Services</h3>
+          <p class="mt-2 text-sm text-slate-300">Department governance, lecturer tools, alumni network.</p>
         </article>
+      </div>
+      <div class="mt-6 rounded-xl border border-white/10 bg-slate-900/70 p-4">
+        <h3 class="text-sm font-semibold text-cyan-100">Department Activity Overview</h3>
+        <canvas id="roleChart" class="mt-3 max-h-64"></canvas>
       </div>
     </section>
 
-    <section id="students" class="panel">
-      <h2>Students Dashboard</h2>
-      <div class="export-actions">
-        <button class="export-btn" data-format="pdf" data-section="students">Export PDF</button>
-        <button class="export-btn" data-format="png" data-section="students">Export PNG</button>
+    <section id="students" class="panel hidden rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Students Dashboard</h2>
+      <div class="export-actions mt-4 flex flex-wrap gap-2">
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="pdf" data-section="students">Export PDF</button>
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="png" data-section="students">Export PNG</button>
       </div>
-      <div class="cards">
-        <article class="card">
-          <h3>My Courses</h3>
-          <p>View current semester units and registration status.</p>
-        </article>
-        <article class="card">
-          <h3>Results</h3>
-          <p>Track continuous assessments and end-of-term exam results.</p>
-        </article>
-        <article class="card">
-          <h3>Announcements</h3>
-          <p>Read notices from the institute and department heads.</p>
-        </article>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">My Courses</h3><p class="mt-2 text-sm text-slate-300">View units and registration status.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Results</h3><p class="mt-2 text-sm text-slate-300">Continuous assessment and exam records.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Announcements</h3><p class="mt-2 text-sm text-slate-300">Official institute notices and updates.</p></div>
       </div>
-      <div class="data-portability">
-        <h3>Department Data (Supabase)</h3>
-        <textarea id="studentsData" class="data-input" rows="5" placeholder="Enter students department data here..."></textarea>
-        <div class="data-actions">
-          <button class="data-btn" data-action="save" data-role="students">Save to Supabase</button>
-          <button class="data-btn" data-action="load" data-role="students">Load from Supabase</button>
+      <div class="mt-5 border-t border-white/10 pt-5">
+        <h3 class="font-semibold text-cyan-200">Department Data (Supabase)</h3>
+        <textarea id="studentsData" rows="5" class="mt-3 w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" placeholder="Enter students department data here..."></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="data-btn rounded-lg bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400" data-action="save" data-role="students">Save to Supabase</button>
+          <button class="data-btn rounded-lg border border-cyan-300/50 bg-cyan-500/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/20" data-action="load" data-role="students">Load from Supabase</button>
         </div>
       </div>
     </section>
 
-    <section id="finance" class="panel">
-      <h2>Finance Dashboard</h2>
-      <div class="export-actions">
-        <button class="export-btn" data-format="pdf" data-section="finance">Export PDF</button>
-        <button class="export-btn" data-format="png" data-section="finance">Export PNG</button>
+    <section id="finance" class="panel hidden rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Finance Dashboard</h2>
+      <div class="export-actions mt-4 flex flex-wrap gap-2">
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="pdf" data-section="finance">Export PDF</button>
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="png" data-section="finance">Export PNG</button>
       </div>
-      <div class="cards">
-        <article class="card">
-          <h3>Fee Statements</h3>
-          <p>Generate and share student financial statements quickly.</p>
-        </article>
-        <article class="card">
-          <h3>Payment Tracking</h3>
-          <p>Monitor paid, pending, and overdue balances by intake.</p>
-        </article>
-        <article class="card">
-          <h3>Receipts</h3>
-          <p>Issue and validate electronic fee receipts.</p>
-        </article>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Fee Statements</h3><p class="mt-2 text-sm text-slate-300">Generate and verify student statements.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Payment Tracking</h3><p class="mt-2 text-sm text-slate-300">Monitor paid, pending, and overdue balances.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Receipts</h3><p class="mt-2 text-sm text-slate-300">Issue secure electronic receipts.</p></div>
       </div>
-      <div class="data-portability">
-        <h3>Department Data (Supabase)</h3>
-        <textarea id="financeData" class="data-input" rows="5" placeholder="Enter finance department data here..."></textarea>
-        <div class="data-actions">
-          <button class="data-btn" data-action="save" data-role="finance">Save to Supabase</button>
-          <button class="data-btn" data-action="load" data-role="finance">Load from Supabase</button>
+      <div class="mt-5 border-t border-white/10 pt-5">
+        <h3 class="font-semibold text-cyan-200">Department Data (Supabase)</h3>
+        <textarea id="financeData" rows="5" class="mt-3 w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" placeholder="Enter finance department data here..."></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="data-btn rounded-lg bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400" data-action="save" data-role="finance">Save to Supabase</button>
+          <button class="data-btn rounded-lg border border-cyan-300/50 bg-cyan-500/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/20" data-action="load" data-role="finance">Load from Supabase</button>
         </div>
       </div>
     </section>
 
-    <section id="administration" class="panel">
-      <h2>Administration Dashboard</h2>
-      <div class="export-actions">
-        <button class="export-btn" data-format="pdf" data-section="administration">Export PDF</button>
-        <button class="export-btn" data-format="png" data-section="administration">Export PNG</button>
+    <section id="administration" class="panel hidden rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Administration Dashboard</h2>
+      <div class="export-actions mt-4 flex flex-wrap gap-2">
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="pdf" data-section="administration">Export PDF</button>
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="png" data-section="administration">Export PNG</button>
       </div>
-      <div class="cards">
-        <article class="card">
-          <h3>Student Records</h3>
-          <p>Manage enrollment data and registration compliance.</p>
-        </article>
-        <article class="card">
-          <h3>Academic Calendar</h3>
-          <p>Publish semester timelines, exams, and institutional events.</p>
-        </article>
-        <article class="card">
-          <h3>Department Oversight</h3>
-          <p>Coordinate internal units and approve key workflows.</p>
-        </article>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Student Records</h3><p class="mt-2 text-sm text-slate-300">Enrollment and compliance data management.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Academic Calendar</h3><p class="mt-2 text-sm text-slate-300">Semesters, exam periods, and events.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Department Oversight</h3><p class="mt-2 text-sm text-slate-300">Policy approvals and unit coordination.</p></div>
       </div>
-      <div class="data-portability">
-        <h3>Department Data (Supabase)</h3>
-        <textarea id="administrationData" class="data-input" rows="5" placeholder="Enter administration department data here..."></textarea>
-        <div class="data-actions">
-          <button class="data-btn" data-action="save" data-role="administration">Save to Supabase</button>
-          <button class="data-btn" data-action="load" data-role="administration">Load from Supabase</button>
+      <div class="mt-5 border-t border-white/10 pt-5">
+        <h3 class="font-semibold text-cyan-200">Department Data (Supabase)</h3>
+        <textarea id="administrationData" rows="5" class="mt-3 w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" placeholder="Enter administration department data here..."></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="data-btn rounded-lg bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400" data-action="save" data-role="administration">Save to Supabase</button>
+          <button class="data-btn rounded-lg border border-cyan-300/50 bg-cyan-500/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/20" data-action="load" data-role="administration">Load from Supabase</button>
         </div>
       </div>
     </section>
 
-    <section id="lecturers" class="panel">
-      <h2>Lecturers Dashboard</h2>
-      <div class="export-actions">
-        <button class="export-btn" data-format="pdf" data-section="lecturers">Export PDF</button>
-        <button class="export-btn" data-format="png" data-section="lecturers">Export PNG</button>
+    <section id="lecturers" class="panel hidden rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Lecturers Dashboard</h2>
+      <div class="export-actions mt-4 flex flex-wrap gap-2">
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="pdf" data-section="lecturers">Export PDF</button>
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="png" data-section="lecturers">Export PNG</button>
       </div>
-      <div class="cards">
-        <article class="card">
-          <h3>Class Lists</h3>
-          <p>Access assigned classes and student attendance details.</p>
-        </article>
-        <article class="card">
-          <h3>Assessment Upload</h3>
-          <p>Submit marks and feedback for each module.</p>
-        </article>
-        <article class="card">
-          <h3>Teaching Resources</h3>
-          <p>Share notes, assignments, and class updates.</p>
-        </article>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Class Lists</h3><p class="mt-2 text-sm text-slate-300">Assigned classes and attendance details.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Assessment Upload</h3><p class="mt-2 text-sm text-slate-300">Grades and student feedback management.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Teaching Resources</h3><p class="mt-2 text-sm text-slate-300">Course notes and communication updates.</p></div>
       </div>
-      <div class="data-portability">
-        <h3>Department Data (Supabase)</h3>
-        <textarea id="lecturersData" class="data-input" rows="5" placeholder="Enter lecturers department data here..."></textarea>
-        <div class="data-actions">
-          <button class="data-btn" data-action="save" data-role="lecturers">Save to Supabase</button>
-          <button class="data-btn" data-action="load" data-role="lecturers">Load from Supabase</button>
+      <div class="mt-5 border-t border-white/10 pt-5">
+        <h3 class="font-semibold text-cyan-200">Department Data (Supabase)</h3>
+        <textarea id="lecturersData" rows="5" class="mt-3 w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" placeholder="Enter lecturers department data here..."></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="data-btn rounded-lg bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400" data-action="save" data-role="lecturers">Save to Supabase</button>
+          <button class="data-btn rounded-lg border border-cyan-300/50 bg-cyan-500/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/20" data-action="load" data-role="lecturers">Load from Supabase</button>
         </div>
       </div>
     </section>
 
-    <section id="alumni" class="panel">
-      <h2>Alumni Dashboard</h2>
-      <div class="export-actions">
-        <button class="export-btn" data-format="pdf" data-section="alumni">Export PDF</button>
-        <button class="export-btn" data-format="png" data-section="alumni">Export PNG</button>
+    <section id="alumni" class="panel hidden rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Alumni Dashboard</h2>
+      <div class="export-actions mt-4 flex flex-wrap gap-2">
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="pdf" data-section="alumni">Export PDF</button>
+        <button class="export-btn rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20" data-format="png" data-section="alumni">Export PNG</button>
       </div>
-      <div class="cards">
-        <article class="card">
-          <h3>Alumni Directory</h3>
-          <p>Keep contact and professional profile details updated.</p>
-        </article>
-        <article class="card">
-          <h3>Opportunities</h3>
-          <p>View jobs, internships, and collaboration openings.</p>
-        </article>
-        <article class="card">
-          <h3>Institution Engagement</h3>
-          <p>Participate in mentorship, events, and community outreach.</p>
-        </article>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Alumni Directory</h3><p class="mt-2 text-sm text-slate-300">Professional profile and contact network.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Opportunities</h3><p class="mt-2 text-sm text-slate-300">Jobs, internships, and collaborations.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-4"><h3 class="font-semibold">Institution Engagement</h3><p class="mt-2 text-sm text-slate-300">Mentorship, events, and outreach.</p></div>
       </div>
-      <div class="data-portability">
-        <h3>Department Data (Supabase)</h3>
-        <textarea id="alumniData" class="data-input" rows="5" placeholder="Enter alumni department data here..."></textarea>
-        <div class="data-actions">
-          <button class="data-btn" data-action="save" data-role="alumni">Save to Supabase</button>
-          <button class="data-btn" data-action="load" data-role="alumni">Load from Supabase</button>
+      <div class="mt-5 border-t border-white/10 pt-5">
+        <h3 class="font-semibold text-cyan-200">Department Data (Supabase)</h3>
+        <textarea id="alumniData" rows="5" class="mt-3 w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" placeholder="Enter alumni department data here..."></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="data-btn rounded-lg bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400" data-action="save" data-role="alumni">Save to Supabase</button>
+          <button class="data-btn rounded-lg border border-cyan-300/50 bg-cyan-500/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/20" data-action="load" data-role="alumni">Load from Supabase</button>
         </div>
       </div>
     </section>
 
-    <section class="panel active tools-panel" id="quick-tools">
-      <h2>Secure Access (Supabase Auth)</h2>
-      <div class="form-row">
-        <label for="emailInput">Email</label>
-        <input id="emailInput" type="email" placeholder="name@example.com" />
-        <label for="passwordInput">Password</label>
-        <input id="passwordInput" type="password" placeholder="Enter password" />
+    <section id="quick-tools" class="panel rounded-2xl border border-cyan-300/25 bg-gradient-to-br from-slate-900/90 to-cyan-950/40 p-6 shadow-2xl shadow-cyan-900/20 transition duration-300 ease-out">
+      <h2 class="text-xl font-semibold text-white">Secure Access (Supabase Auth)</h2>
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        <div>
+          <label for="emailInput" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-300">Email</label>
+          <input id="emailInput" type="email" placeholder="name@example.com" class="w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" />
+        </div>
+        <div>
+          <label for="passwordInput" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-300">Password</label>
+          <input id="passwordInput" type="password" placeholder="Enter password" class="w-full rounded-xl border border-white/15 bg-slate-800/70 p-3 text-sm outline-none ring-cyan-300/40 placeholder:text-slate-400 focus:ring" />
+        </div>
       </div>
-      <div class="form-row">
-        <label for="roleSelect">Select Stakeholder</label>
-        <select id="roleSelect">
+      <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <select id="roleSelect" class="rounded-xl border border-white/15 bg-slate-800/80 px-3 py-3 text-sm outline-none ring-cyan-300/40 focus:ring">
           <option value="students">Students</option>
           <option value="finance">Finance</option>
           <option value="administration">Administration</option>
           <option value="lecturers">Lecturers</option>
           <option value="alumni">Alumni</option>
         </select>
-        <button id="goBtn">Login</button>
-        <button id="registerBtn" class="ghost-btn">Register</button>
+        <button id="goBtn" class="rounded-xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-cyan-400">Login</button>
+        <button id="registerBtn" class="rounded-xl border border-cyan-300/50 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/20">Register</button>
       </div>
-      <p class="status-note">Use role selector when registering a new account. Login role is read from your assigned Supabase profile.</p>
-      <p id="statusText" class="status">Enter your email and password to login.</p>
+      <p class="mt-4 text-xs text-slate-300">Choose a role when creating a new account. Login access is enforced by your role profile in Supabase.</p>
+      <p id="statusText" class="mt-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-cyan-100">Enter your email and password to login.</p>
     </section>
+    </div>
   </main>
 
-  <footer>
-    <p>&copy; <span id="year"></span> KITGUM TECHNICAL INSTITUTE. All rights reserved.</p>
+  <footer class="border-t border-white/10 bg-slate-900/60 py-4 text-center text-sm text-slate-400">
+    &copy; <span id="year"></span> KITGUM TECHNICAL INSTITUTE. All rights reserved.
   </footer>
+
+  <nav class="fixed bottom-3 left-1/2 z-50 flex w-[95%] max-w-xl -translate-x-1/2 items-center justify-between rounded-2xl border border-white/15 bg-slate-900/90 px-2 py-2 shadow-xl backdrop-blur md:hidden">
+    <button class="nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-cyan-200" data-target="home">Home</button>
+    <button class="nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-slate-300" data-target="students">Students</button>
+    <button class="nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-slate-300" data-target="finance">Finance</button>
+    <button class="nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-slate-300" data-target="administration">Admin</button>
+    <button class="nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-slate-300" data-target="lecturers">Lecturers</button>
+    <button class="nav-btn-mobile rounded-xl px-3 py-2 text-xs font-semibold text-slate-300" data-target="alumni">Alumni</button>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="script.js"></script>
