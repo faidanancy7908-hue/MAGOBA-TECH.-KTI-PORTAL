@@ -1,0 +1,10 @@
+{
+  "name": "kitgum-technical-institute-portal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix \"KITGUM TECHNICAL INSTITUTE PORTAL\" run dev",
+    "build": "npm --prefix \"KITGUM TECHNICAL INSTITUTE PORTAL\" run build",
+    "preview": "npm --prefix \"KITGUM TECHNICAL INSTITUTE PORTAL\" run preview"
+  }
+}

@@ -47,9 +47,6 @@ body {
   gap: 0.6rem;
 }
 
-.top-nav.locked .nav-btn:not([data-target="home"]) {
-  display: none;
-}
 
 .nav-btn {
   border: 1px solid rgba(255, 255, 255, 0.35);

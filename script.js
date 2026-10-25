@@ -292,41 +292,36 @@ function setActiveNav(panelId) {
 }
 
 function openPanel(panelId) {
-  if (securedRoles.includes(panelId) && panelId !== activeRole) {
-    statusText.textContent = "Access denied. Please login with your assigned role.";
-    return;
-  }
-
   contentPanels.forEach((panel) => {
     if (panel.id === "quick-tools") {
-      panel.classList.toggle("hidden", Boolean(activeRole));
+      panel.classList.toggle("hidden", false);
       return;
     }
     panel.classList.toggle("hidden", panel.id !== panelId);
   });
 
   setActiveNav(panelId);
-
-  statusText.textContent = `Now viewing: ${capitalize(panelId)} dashboard`;
+  statusText.textContent = `Now viewing: ${capitalize(panelId)} section`;
 }
 
 function applyRoleView() {
   navButtons.forEach((button) => {
-    const target = button.dataset.target;
-    const allowed = target === "home" || target === activeRole;
-    button.style.display = allowed ? "inline-block" : "none";
+    button.style.display = "inline-block";
+  });
+
+  sideNavButtons.forEach((button) => {
+    button.style.display = "block";
   });
 
   if (!activeRole) {
-    topNav.classList.add("locked");
+    topNav.classList.remove("locked");
     appContext.session.activeRole = null;
-    appContext.session.status = "No active session";
+    appContext.session.status = "Public Access Mode (Guest)";
     appContext.session.twoFactorVerified = false;
     sessionText.textContent = appContext.session.status;
     logoutBtn.classList.add("hidden");
     stopDepartmentRealtimeSync();
     saveContext();
-    openPanel("home");
     return;
   }
 
@@ -340,6 +335,28 @@ function applyRoleView() {
   startDepartmentRealtimeSync(activeRole);
   openPanel(activeRole);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const admBtn = document.getElementById("admSubmitBtn");
+  if (admBtn) {
+    admBtn.addEventListener("click", () => {
+      const fn = document.getElementById("admFirstName")?.value.trim();
+      const ln = document.getElementById("admLastName")?.value.trim();
+      const phone = document.getElementById("admPhone")?.value.trim();
+      const prog = document.getElementById("admProgram")?.value;
+      const resMsg = document.getElementById("admResultMsg");
+      if (!fn || !ln || !phone) {
+        alert("Please fill in first name, last name, and phone number.");
+        return;
+      }
+      const ref = `KTI-ADM-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      if (resMsg) {
+        resMsg.textContent = `Success! Application Reference ID: ${ref} generated. Report to Academic Registrar by Aug 15.`;
+        resMsg.classList.remove("hidden");
+      }
+    });
+  }
+});
 
 async function fetchCurrentRole() {
   const { data, error } = await supabaseClient
